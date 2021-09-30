@@ -2,13 +2,13 @@ varying vec4 vPosition;
 varying float vSnoise;
 varying float hillHeight;
 
-float cold_desert_slope = 30 / 22;
-float woodland_slope = 120 / 22;
-float seasonal_forest = 220 / 22;
-float temparature_rain_forest = 320 / 22;
-float subtropical_desert = 60 / 13;
-float tropical_seasonal_forest = 65 / 13;
-float tropical_rain_forest = 100 / 13;
+float cold_desert_slope = 1.3636;
+float woodland_slope = 5.4545;
+float seasonal_forest = 10.00;
+float temparature_rain_forest = 14.5454;
+float subtropical_desert = 4.6153;
+float tropical_seasonal_forest = 5.00;
+float tropical_rain_forest = 7.69;
 
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 
@@ -41,8 +41,9 @@ float simplex(vec2 v){
 
 
 
+
 int check_secondPhase(float temperature, float precipitation){
-    float a=precipitation/22;
+    float a=precipitation/22.00;
     if (a<=cold_desert_slope)return 3;
     else if (a>cold_desert_slope&&a<=woodland_slope)return 4;
     else if (a>woodland_slope&&a<=seasonal_forest)return 5;
@@ -50,7 +51,7 @@ int check_secondPhase(float temperature, float precipitation){
     return 1;
 }
 int check_thirdPhase(float temperature, float precipitation){
-    float a=precipitation-temperature*(60/13);
+    float a=precipitation-temperature*(60.00/13.00);
     if (a<61.538)return 7;
     else if (a>=61.538&&a<118.461)return 8;
     return 9;
@@ -66,35 +67,30 @@ int getBiome(float temperature, float precipitation){
 }
 
 
+float getTemperature(float offset){
+    //Temperature = sin(x) ranging from -10 to + 35 which is  -22.5 to + 22.5  and offsetted +12.5
+    float temperature =  sin(distance(vec2(0,0),vPosition.xz/20.0));
+    temperature -= vPosition.y*.1; /**IMPORTANT!!Need Research*/
+    return temperature*22.5 + 12.5 + offset;
+}
+
+float getPreceipitationMath(float temp){
+    float f = 1.25*temp - 30.0;
+    float precipitation = 10.0*f -pow(10.0,0.2*f) + 400.0;
+    return precipitation<0.0? 0.0: precipitation;
+}
+float getPrecipitation(float temperature){
+    float  a = getPreceipitationMath(temperature);
+    return simplex(vPosition.xz/500.0)*a;
+}
+
 float getColor(float color){
     return 0.0;
 }
 vec3 getHighColor(float temp){
     return vec3(1.0*temp, 0.5*temp, 0.3*temp);
 }
-int check_secondPhase(float temparature, float precipitation){
-    float a=precipitation/22;
-    if (a<=cold_desert_slope)return 3;
-    else if (a>cold_desert_slope&&a<=woodland_slope)return 4;
-    else if (a>woodland_slope&&a<=seasonal_forest)return 5;
-    else if (a>seasonal_forest&&a<=temparature_rain_forest)return 6;
-    return 1;
-}
-int check_thirdPhase(float temparature, float precipitation){
-    float a=precipitation-temparature*(60/13);
-    if (a<61.538)return 7;
-    else if (a>=61.538&&a<118.461)return 8;
-    return 9;
-}
-int getBiome(float temperature, float precipitation){
 
-    if (temparature< -2.00)return 1;
-    else if (temparature> -2&&temparature<=7)return 2;
-    else if (temparature>7.00&&temparature<18.00)return check_secondPhase(temparature, precipitation);
-    else if (temparature>=18.00&&temparature<33) return check_thirdPhase(temparature, precipitation);
-    return 8;
-
-}
 void main(){
 
     vec3 highColor = vec3(1.0, 0.5, 0.3);
