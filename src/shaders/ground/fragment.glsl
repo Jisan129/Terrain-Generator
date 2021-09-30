@@ -1,7 +1,7 @@
 
 varying vec4 vPosition;
 varying float vSnoise;
-
+varying float hillHeight;
 
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 
@@ -52,7 +52,12 @@ float getPrecipitation(float temperature){
 }
 
 
-
+float getColor(float color){
+    return 0.0;
+}
+vec3 getHighColor(float temp){
+    return vec3(1.0*temp,0.5*temp,0.3*temp);
+}
 
 void main(){
 

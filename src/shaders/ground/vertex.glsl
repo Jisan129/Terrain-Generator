@@ -1,6 +1,6 @@
 varying vec4 vPosition;
 varying float vSnoise;
-
+varying float hillHeight;
 
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 
@@ -42,7 +42,22 @@ float snoise(float x,float y){
 }
 
 
+float getTemperature(float offset){
+    //Temperature = sin(x) ranging from -10 to + 35 which is  -22.5 to + 22.5  and offsetted +12.5
+    float temperature =  sin(distance(vec2(0,0),vPosition.xz/20.0));
+    temperature -= vPosition.y*.1; /**IMPORTANT!!Need Research*/
+    return temperature*22.5 + 12.5 + offset;
+}
 
+float getPreceipitationMath(float temp){
+    float f = 1.25*temp - 30.0;
+    float precipitation = 10.0*f -pow(10.0,0.2*f) + 400.0;
+    return precipitation<0.0? 0.0: precipitation;
+}
+float getPrecipitation(float temperature){
+    float  a = getPreceipitationMath(temperature);
+    return simplex(vPosition.xz/500.0)*a;
+}
 
 float height(vec2 pos){
 
@@ -99,4 +114,5 @@ void main(){
     gl_Position = projectedPosition;
 
     vPosition = modelPosition;
+    hillHeight=modelPosition.y;
 }
